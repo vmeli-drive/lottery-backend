@@ -163,7 +163,6 @@ h2.section-title{ font-family:'Anton',sans-serif; font-size:24px; letter-spacing
   <div class="counter">
     <div class="counter-stat"><div class="num" id="soldCount">0</div><div class="label">Biglietti venduti</div></div>
     <div style="flex:1 1 220px;"><div class="progress-track"><div class="progress-fill" id="progressFill"></div></div></div>
-    <div class="counter-stat"><div class="num" id="revenueCount">0€</div><div class="label">Incassato</div></div>
   </div>
 
   <section>
@@ -296,7 +295,6 @@ h2.section-title{ font-family:'Anton',sans-serif; font-size:24px; letter-spacing
       soldSet = new Set(state.soldNumbers);
       $('soldCount').textContent = soldSet.size;
       $('progressFill').style.width = ((soldSet.size / state.totalTickets) * 100).toFixed(1) + '%';
-      $('revenueCount').textContent = state.revenue + '€';
       if (state.winner){
         $('winnerBanner').classList.add('show');
         $('winnerText').textContent = `Biglietto vincente: ${pad(state.winner.number)} — ${state.winner.buyerName || 'in attesa di identificazione'}`;
