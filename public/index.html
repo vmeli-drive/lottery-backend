@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lotteria Privata — iPhone in Palio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@500;700&display=swap');
+
+:root{
+  --ink:#12162A; --ink-2:#1C2140; --ink-3:#282E54;
+  --paper:#EFE3C0; --paper-2:#E2D19F; --paper-ink:#2B2210;
+  --gold:#D4A537; --gold-soft:#E9CD86;
+  --red:#C1392B; --red-deep:#8F2A20;
+  --teal:#3AACA4; --cream:#F5EEDA;
+  --line: rgba(245,238,218,0.14);
+}
+*{ box-sizing: border-box; }
+body{ margin:0; background: var(--ink); color: var(--cream); font-family:'Source Serif 4', Georgia, serif; line-height:1.5; }
+.display{ font-family:'Anton','Arial Narrow',sans-serif; letter-spacing:0.02em; text-transform:uppercase; }
+.mono{ font-family:'JetBrains Mono', monospace; }
+button{ font-family: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible{ outline: 2px solid var(--teal); outline-offset: 2px; }
+.wrap{ max-width: 880px; margin: 0 auto; padding: 0 20px 80px; }
+
+.hero{ position: relative; padding: 56px 20px 40px; border-bottom: 1px solid var(--line);
+  background: radial-gradient(ellipse at top right, rgba(212,165,55,0.14), transparent 55%), var(--ink); overflow:hidden; }
+.hero-inner{ max-width: 880px; margin: 0 auto; display:flex; align-items:center; gap:32px; flex-wrap: wrap; }
+.hero-text{ flex: 1 1 360px; }
+.eyebrow{ display:inline-flex; align-items:center; gap:8px; font-family:'JetBrains Mono',monospace; font-size:12px;
+  letter-spacing:0.18em; color: var(--gold-soft); text-transform: uppercase; margin-bottom:14px; }
+.eyebrow::before{ content:""; width:18px; height:1px; background: var(--gold-soft); }
+.hero h1{ font-size: clamp(38px,6vw,60px); margin:0 0 12px; line-height:0.98; color: var(--cream); }
+.hero h1 span{ color: var(--gold); }
+.hero p{ max-width:46ch; color: rgba(245,238,218,0.78); font-size:17px; margin:0; }
+.phone-art{ flex:0 0 auto; width:132px; }
+.phone-art svg{ width:100%; height:auto; display:block; }
+
+.winner-banner{ margin-top:28px; padding:16px 20px; background: linear-gradient(135deg, var(--gold-soft), var(--gold));
+  color: var(--paper-ink); border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:14px; display:none; align-items:center; gap:12px; }
+.winner-banner.show{ display:flex; }
+.winner-banner b{ font-family:'Anton',sans-serif; font-size:18px; letter-spacing:0.04em; }
+
+.counter{ padding:28px 0 8px; display:flex; gap:24px; flex-wrap:wrap; align-items:flex-end; border-bottom:1px solid var(--line); margin-bottom:8px; }
+.counter-stat{ min-width:140px; }
+.counter-stat .num{ font-family:'Anton',sans-serif; font-size:34px; color: var(--gold); line-height:1; }
+.counter-stat .label{ font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color: rgba(245,238,218,0.55); margin-top:4px; }
+.progress-track{ flex:1 1 220px; height:8px; background: var(--ink-3); border-radius:99px; overflow:hidden; margin-bottom:10px; }
+.progress-fill{ height:100%; background: linear-gradient(90deg, var(--teal), var(--gold)); width:0%; transition: width 0.4s ease; }
+
+section{ padding:40px 0; }
+h2.section-title{ font-family:'Anton',sans-serif; font-size:24px; letter-spacing:0.02em; color: var(--cream); margin:0 0 4px; }
+.section-sub{ color: rgba(245,238,218,0.6); font-size:14px; margin:0 0 24px; }
+
+.pack-row{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px; }
+.pack-card{ flex:1 1 220px; border:1px solid var(--line); background: var(--ink-2); border-radius:6px; padding:18px 20px;
+  text-align:left; color: var(--cream); transition: border-color 0.15s ease, transform 0.15s ease; }
+.pack-card:hover{ transform: translateY(-2px); }
+.pack-card.active{ border-color: var(--gold); background: linear-gradient(180deg, rgba(212,165,55,0.12), var(--ink-2)); }
+.pack-card .price{ font-family:'Anton',sans-serif; font-size:28px; color: var(--gold); }
+.pack-card .desc{ font-size:13px; color: rgba(245,238,218,0.6); margin-top:4px; }
+.pack-card .save{ display:inline-block; margin-top:8px; font-family:'JetBrains Mono',monospace; font-size:11px;
+  color: var(--teal); border:1px solid var(--teal); padding:2px 8px; border-radius:99px; }
+
+.mode-row{ display:flex; gap:10px; margin-bottom:18px; }
+.mode-btn{ border:1px solid var(--line); background:transparent; color: rgba(245,238,218,0.7); padding:8px 16px; border-radius:99px; font-size:13px; }
+.mode-btn.active{ border-color: var(--teal); color: var(--teal); background: rgba(58,172,164,0.1); }
+
+.grid-wrap{ border:1px solid var(--line); border-radius:6px; background: var(--ink-2); padding:14px; margin-bottom:20px; }
+.grid-legend{ display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color: rgba(245,238,218,0.55); margin-bottom:10px; }
+.grid-legend span{ display:inline-flex; align-items:center; gap:6px; }
+.legend-dot{ width:10px; height:10px; border-radius:2px; display:inline-block; }
+.num-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(46px,1fr)); gap:4px; max-height:260px; overflow-y:auto; padding-right:4px; }
+.num-cell{ font-family:'JetBrains Mono',monospace; font-size:11px; border:1px solid var(--line); background: var(--ink);
+  color: rgba(245,238,218,0.65); border-radius:3px; padding:6px 0; text-align:center; }
+.num-cell:not(:disabled):hover{ border-color: var(--teal); color: var(--teal); }
+.num-cell.sold{ background: var(--red-deep); border-color: var(--red-deep); color: rgba(245,238,218,0.35); cursor:not-allowed; text-decoration: line-through; }
+.num-cell.selected{ background: var(--gold); border-color: var(--gold); color: var(--paper-ink); font-weight:700; }
+
+.field-row{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:16px; }
+.field{ flex:1 1 220px; display:flex; flex-direction:column; gap:6px; }
+.field label{ font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color: rgba(245,238,218,0.55); }
+.field input{ background: var(--ink-2); border:1px solid var(--line); color: var(--cream); padding:11px 12px; border-radius:4px; font-size:15px; font-family:'Source Serif 4', serif; }
+.field input::placeholder{ color: rgba(245,238,218,0.3); }
+
+.total-row{ display:flex; align-items:center; justify-content:space-between; border-top:1px dashed var(--line); padding-top:16px; margin-top:4px; }
+.total-row .total-num{ font-family:'Anton',sans-serif; font-size:30px; color: var(--gold); }
+
+.buy-btn{ background: var(--red); color: var(--cream); border:none; padding:15px 28px; border-radius:4px;
+  font-family:'Anton',sans-serif; font-size:16px; letter-spacing:0.03em; transition: background 0.15s ease; }
+.buy-btn:hover:not(:disabled){ background: var(--red-deep); }
+.buy-btn:disabled{ background: var(--ink-3); color: rgba(245,238,218,0.35); cursor:not-allowed; }
+
+.msg{ margin-top:12px; font-size:13px; padding:10px 14px; border-radius:4px; display:none; }
+.msg.show{ display:block; }
+.msg.error{ background: rgba(193,57,43,0.15); color:#f0a89f; border:1px solid rgba(193,57,43,0.4); }
+.msg.ok{ background: rgba(58,172,164,0.12); color: var(--teal); border:1px solid rgba(58,172,164,0.4); }
+
+.paypal-area{ display:none; margin-top:18px; padding:18px; border:1px solid var(--line); border-radius:6px; background: var(--ink-2); }
+.paypal-area.show{ display:block; }
+.paypal-area .paypal-hint{ font-size:12px; color: rgba(245,238,218,0.55); margin-bottom:12px; }
+
+.stub-area{ display:none; }
+.stub-area.show{ display:block; }
+.stub{ position:relative; display:flex; background: var(--paper); color: var(--paper-ink); border-radius:6px; overflow:hidden; margin-bottom:14px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+.stub-main{ flex:1; padding:20px 22px; }
+.stub-main .stub-event{ font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--red-deep); font-family:'JetBrains Mono',monospace; }
+.stub-main .stub-name{ font-family:'Anton',sans-serif; font-size:20px; margin-top:6px; }
+.stub-main .stub-sub{ font-size:12px; color: rgba(43,34,16,0.6); margin-top:2px; }
+.stub-divider{ width:0; border-left:2px dashed rgba(43,34,16,0.35); position:relative; }
+.stub-divider::before, .stub-divider::after{ content:""; position:absolute; width:16px; height:16px; background: var(--ink); border-radius:50%; left:-8px; }
+.stub-divider::before{ top:-8px; }
+.stub-divider::after{ bottom:-8px; }
+.stub-num{ flex:0 0 120px; background: var(--paper-2); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px 8px; }
+.stub-num .lbl{ font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color: rgba(43,34,16,0.55); }
+.stub-num .n{ font-family:'JetBrains Mono',monospace; font-weight:700; font-size:24px; margin-top:4px; }
+.stamp{ position:absolute; top:14px; right:18px; font-family:'Anton',sans-serif; font-size:12px; letter-spacing:0.08em;
+  color: var(--red); border:2px solid var(--red); border-radius:3px; padding:3px 8px; transform: rotate(8deg); opacity:0.85; }
+
+.steps{ display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:16px; }
+.step{ border:1px solid var(--line); border-radius:6px; padding:16px 18px; background: var(--ink-2); }
+.step .step-n{ font-family:'JetBrains Mono',monospace; color: var(--gold); font-size:13px; }
+.step p{ margin:8px 0 0; font-size:14px; color: rgba(245,238,218,0.75); }
+
+.notice{ margin-top:24px; font-size:13px; color: rgba(245,238,218,0.55); border-left:2px solid var(--teal); padding:10px 16px; background: rgba(58,172,164,0.06); }
+
+.admin{ border-top:1px solid var(--line); padding-top:32px; margin-top:20px; }
+.admin-gate{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.admin-gate input{ background: var(--ink-2); border:1px solid var(--line); color: var(--cream); padding:9px 12px; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:13px; }
+.admin-gate button{ background:transparent; border:1px solid var(--teal); color: var(--teal); padding:9px 16px; border-radius:4px; font-size:13px; }
+.admin-panel{ display:none; margin-top:20px; }
+.admin-panel.show{ display:block; }
+.admin-actions{ display:flex; gap:12px; flex-wrap:wrap; }
+.admin-actions button{ padding:11px 18px; border-radius:4px; font-size:13px; border:1px solid var(--line); background: var(--ink-2); color: var(--cream); }
+.admin-actions button.draw{ border-color: var(--gold); color: var(--gold); }
+.admin-actions button.danger{ border-color: var(--red); color:#f0a89f; }
+.admin-list{ margin-top:18px; font-family:'JetBrains Mono',monospace; font-size:12px; color: rgba(245,238,218,0.6); max-height:160px; overflow-y:auto; }
+.admin-list div{ padding:4px 0; border-bottom:1px solid var(--line); }
+
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="eyebrow">Lotteria privata</div>
+      <h1>iPhone<br><span>in palio</span></h1>
+      <p id="heroSub">1000 biglietti numerati. Scegli il tuo, paga in sicurezza con PayPal e ricevi la conferma via email.</p>
+    </div>
+    <div class="phone-art" aria-hidden="true">
+      <svg viewBox="0 0 100 200" fill="none">
+        <rect x="4" y="4" width="92" height="192" rx="18" stroke="#D4A537" stroke-width="3"/>
+        <rect x="14" y="20" width="72" height="150" rx="4" stroke="#3AACA4" stroke-width="2" opacity="0.6"/>
+        <circle cx="50" cy="184" r="5" stroke="#D4A537" stroke-width="2"/>
+        <rect x="38" y="10" width="24" height="4" rx="2" fill="#D4A537"/>
+      </svg>
+    </div>
+  </div>
+  <div class="wrap" style="padding:0;">
+    <div id="winnerBanner" class="winner-banner">🏆 <span><b id="winnerText">—</b></span></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="counter">
+    <div class="counter-stat"><div class="num" id="soldCount">0</div><div class="label">Biglietti venduti</div></div>
+    <div style="flex:1 1 220px;"><div class="progress-track"><div class="progress-fill" id="progressFill"></div></div></div>
+    <div class="counter-stat"><div class="num" id="revenueCount">0€</div><div class="label">Incassato</div></div>
+  </div>
+
+  <section>
+    <h2 class="section-title">Scegli il tuo pacchetto</h2>
+    <p class="section-sub">Un biglietto o un tris — a te la scelta.</p>
+    <div class="pack-row">
+      <button class="pack-card active" id="packSingle">
+        <div class="price" id="priceSingle">5€</div>
+        <div class="desc">1 biglietto</div>
+      </button>
+      <button class="pack-card" id="packTriple">
+        <div class="price" id="priceTriple">12€</div>
+        <div class="desc">3 biglietti</div>
+        <span class="save">risparmi</span>
+      </button>
+    </div>
+
+    <div class="mode-row">
+      <button class="mode-btn active" id="modeAuto">Assegnazione automatica</button>
+      <button class="mode-btn" id="modeManual">Scegli tu il numero</button>
+    </div>
+
+    <div class="grid-wrap" id="gridWrap" style="display:none;">
+      <div class="grid-legend">
+        <span><span class="legend-dot" style="background:var(--ink)"></span>Disponibile</span>
+        <span><span class="legend-dot" style="background:var(--gold)"></span>Selezionato</span>
+        <span><span class="legend-dot" style="background:var(--red-deep)"></span>Venduto/riservato</span>
+      </div>
+      <div class="num-grid" id="numGrid"></div>
+    </div>
+
+    <div class="field-row">
+      <div class="field"><label for="buyerName">Nome e cognome</label><input type="text" id="buyerName" placeholder="Es. Maria Rossi"></div>
+      <div class="field"><label for="buyerContact">Email</label><input type="email" id="buyerContact" placeholder="Per ricevere il biglietto via email"></div>
+    </div>
+
+    <div class="total-row">
+      <div><div class="section-sub" style="margin:0;">Totale da pagare</div><div class="total-num" id="totalPrice">5€</div></div>
+      <button class="buy-btn" id="reserveBtn">Vai al pagamento</button>
+    </div>
+
+    <div class="msg" id="buyMsg"></div>
+
+    <div class="paypal-area" id="paypalArea">
+      <div class="paypal-hint">Completa il pagamento con PayPal per confermare i biglietti selezionati.</div>
+      <div id="paypal-button-container"></div>
+    </div>
+  </section>
+
+  <section class="stub-area" id="stubArea">
+    <h2 class="section-title">Il tuo biglietto</h2>
+    <p class="section-sub">Ti abbiamo anche inviato una email di conferma con questi numeri.</p>
+    <div id="stubList"></div>
+  </section>
+
+  <section>
+    <h2 class="section-title">Come funziona</h2>
+    <div class="steps">
+      <div class="step"><div class="step-n">01</div><p>Scegli 1 biglietto o il tris, in automatico o selezionando tu il numero.</p></div>
+      <div class="step"><div class="step-n">02</div><p>Inserisci nome ed email, poi paga con PayPal.</p></div>
+      <div class="step"><div class="step-n">03</div><p>Il numero è tuo: arriva subito una email di conferma.</p></div>
+      <div class="step"><div class="step-n">04</div><p>All'estrazione, se il tuo numero viene chiamato, ritiri l'iPhone.</p></div>
+    </div>
+    <div class="notice">
+      Il pagamento passa realmente da PayPal e viene verificato dal server prima di assegnare il biglietto: nessuno può "finger di aver pagato".
+    </div>
+  </section>
+
+  <section class="admin">
+    <h2 class="section-title">Area organizzatore</h2>
+    <p class="section-sub">Riservata a chi gestisce la lotteria.</p>
+    <div class="admin-gate">
+      <input type="password" id="adminCode" placeholder="Codice organizzatore">
+      <button id="adminLogin">Accedi</button>
+      <span id="adminHint" style="font-size:12px; color:rgba(245,238,218,0.4);"></span>
+    </div>
+    <div class="admin-panel" id="adminPanel">
+      <div class="admin-actions">
+        <button class="draw" id="drawBtn">Estrai il vincitore</button>
+        <button class="danger" id="resetBtn">Azzera tutti i dati</button>
+      </div>
+      <div class="admin-list" id="adminList"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  let config = null;
+  let currentPack = 'single';
+  let currentMode = 'auto';
+  let manualSelected = [];
+  let soldSet = new Set();
+  let activeReservation = null;
+  let adminSecret = null;
+
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(4, '0');
+
+  async function api(path, opts = {}){
+    const res = await fetch(path, {
+      method: opts.method || 'GET',
+      headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Errore di rete.');
+    return data;
+  }
+
+  async function loadConfig(){
+    config = await api('/api/config');
+    $('priceSingle').textContent = config.prices.single + '€';
+    $('priceTriple').textContent = config.prices.triple + '€';
+    updateTotal();
+    loadPaypalSdk();
+    buildGrid();
+  }
+
+  function loadPaypalSdk(){
+    const script = document.createElement('script');
+    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(config.paypalClientId)}&currency=EUR&intent=capture`;
+    document.body.appendChild(script);
+  }
+
+  async function loadState(){
+    try {
+      const state = await api('/api/state');
+      soldSet = new Set(state.soldNumbers);
+      $('soldCount').textContent = soldSet.size;
+      $('progressFill').style.width = ((soldSet.size / state.totalTickets) * 100).toFixed(1) + '%';
+      $('revenueCount').textContent = state.revenue + '€';
+      if (state.winner){
+        $('winnerBanner').classList.add('show');
+        $('winnerText').textContent = `Biglietto vincente: ${pad(state.winner.number)} — ${state.winner.buyerName || 'in attesa di identificazione'}`;
+      } else {
+        $('winnerBanner').classList.remove('show');
+      }
+      renderGridState();
+    } catch (e){ /* silenzioso: riprova al prossimo giro */ }
+  }
+
+  function buildGrid(){
+    const grid = $('numGrid');
+    grid.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    for (let i = 1; i <= config.totalTickets; i++){
+      const btn = document.createElement('button');
+      btn.className = 'num-cell';
+      btn.textContent = pad(i);
+      btn.dataset.n = i;
+      frag.appendChild(btn);
+    }
+    grid.appendChild(frag);
+    grid.addEventListener('click', (e) => {
+      const cell = e.target.closest('.num-cell');
+      if (!cell || cell.disabled) return;
+      const n = parseInt(cell.dataset.n, 10);
+      const need = currentPack === 'triple' ? 3 : 1;
+      const idx = manualSelected.indexOf(n);
+      if (idx >= 0){ manualSelected.splice(idx, 1); }
+      else {
+        if (manualSelected.length >= need) manualSelected.shift();
+        manualSelected.push(n);
+      }
+      renderGridState();
+    });
+  }
+
+  function renderGridState(){
+    document.querySelectorAll('.num-cell').forEach((cell) => {
+      const n = parseInt(cell.dataset.n, 10);
+      cell.classList.toggle('sold', soldSet.has(n));
+      cell.disabled = soldSet.has(n);
+      cell.classList.toggle('selected', manualSelected.includes(n));
+    });
+  }
+
+  function updateTotal(){
+    const price = currentPack === 'triple' ? config.prices.triple : config.prices.single;
+    $('totalPrice').textContent = price + '€';
+  }
+
+  $('packSingle').addEventListener('click', () => selectPack('single'));
+  $('packTriple').addEventListener('click', () => selectPack('triple'));
+  function selectPack(pack){
+    currentPack = pack;
+    $('packSingle').classList.toggle('active', pack === 'single');
+    $('packTriple').classList.toggle('active', pack === 'triple');
+    manualSelected = [];
+    renderGridState();
+    updateTotal();
+  }
+
+  $('modeAuto').addEventListener('click', () => selectMode('auto'));
+  $('modeManual').addEventListener('click', () => selectMode('manual'));
+  function selectMode(mode){
+    currentMode = mode;
+    $('modeAuto').classList.toggle('active', mode === 'auto');
+    $('modeManual').classList.toggle('active', mode === 'manual');
+    $('gridWrap').style.display = mode === 'manual' ? 'block' : 'none';
+    manualSelected = [];
+    renderGridState();
+  }
+
+  function showMsg(text, type){
+    const el = $('buyMsg');
+    el.textContent = text;
+    el.className = 'msg show ' + type;
+  }
+  function hideMsg(){ $('buyMsg').className = 'msg'; }
+
+  $('reserveBtn').addEventListener('click', async () => {
+    hideMsg();
+    const buyerName = $('buyerName').value.trim();
+    const buyerContact = $('buyerContact').value.trim();
+    const need = currentPack === 'triple' ? 3 : 1;
+
+    if (!buyerName || !buyerContact){
+      showMsg('Inserisci nome ed email prima di procedere.', 'error');
+      return;
+    }
+    if (currentMode === 'manual' && manualSelected.length !== need){
+      showMsg(`Seleziona esattamente ${need} numero${need > 1 ? 'i' : ''} dalla griglia.`, 'error');
+      return;
+    }
+
+    $('reserveBtn').disabled = true;
+    try {
+      const reservation = await api('/api/reservations', {
+        method: 'POST',
+        body: {
+          packType: currentPack,
+          mode: currentMode,
+          numbers: currentMode === 'manual' ? manualSelected : undefined,
+          buyerName, buyerContact
+        }
+      });
+      activeReservation = reservation;
+      renderPaypalButtons();
+      $('paypalArea').classList.add('show');
+      $('paypalArea').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err){
+      showMsg(err.message, 'error');
+    }
+    $('reserveBtn').disabled = false;
+  });
+
+  function renderPaypalButtons(){
+    const container = $('paypal-button-container');
+    container.innerHTML = '';
+    if (!window.paypal){
+      showMsg('PayPal non ancora caricato, riprova tra qualche secondo.', 'error');
+      return;
+    }
+    window.paypal.Buttons({
+      createOrder: async () => {
+        const { orderID } = await api('/api/orders/create', {
+          method: 'POST',
+          body: { reservationId: activeReservation.id }
+        });
+        return orderID;
+      },
+      onApprove: async (data) => {
+        try {
+          const result = await api('/api/orders/capture', {
+            method: 'POST',
+            body: { reservationId: activeReservation.id, orderID: data.orderID }
+          });
+          showStub(result);
+          showMsg('Pagamento confermato. Il tuo biglietto è qui sotto.', 'ok');
+          $('paypalArea').classList.remove('show');
+          $('buyerName').value = '';
+          $('buyerContact').value = '';
+          manualSelected = [];
+          activeReservation = null;
+          loadState();
+        } catch (err){
+          showMsg(err.message, 'error');
+        }
+      },
+      onCancel: async () => {
+        if (activeReservation) await api(`/api/reservations/${activeReservation.id}/cancel`, { method: 'POST' }).catch(() => {});
+        $('paypalArea').classList.remove('show');
+        showMsg('Pagamento annullato, i numeri sono di nuovo disponibili.', 'error');
+      },
+      onError: () => {
+        showMsg('Errore durante il pagamento PayPal, riprova.', 'error');
+      }
+    }).render('#paypal-button-container');
+  }
+
+  function showStub(result){
+    const area = $('stubArea');
+    const list = $('stubList');
+    list.innerHTML = '';
+    result.numbers.forEach((n) => {
+      const stub = document.createElement('div');
+      stub.className = 'stub';
+      stub.innerHTML = `
+        <div class="stub-main">
+          <div class="stub-event">${escapeHtml(config.eventName)}</div>
+          <div class="stub-name">${escapeHtml(result.buyerName)}</div>
+          <div class="stub-sub">Pagamento verificato</div>
+          <div class="stamp">Confermato</div>
+        </div>
+        <div class="stub-divider"></div>
+        <div class="stub-num"><div class="lbl">Numero</div><div class="n">${pad(n)}</div></div>`;
+      list.appendChild(stub);
+    });
+    area.classList.add('show');
+    area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  // --- admin ---
+  $('adminLogin').addEventListener('click', async () => {
+    const code = $('adminCode').value.trim();
+    try {
+      await api('/api/admin/purchases', { headers: { 'x-admin-secret': code } });
+      adminSecret = code;
+      $('adminPanel').classList.add('show');
+      $('adminHint').textContent = 'accesso effettuato';
+      refreshAdminList();
+    } catch (e){
+      $('adminHint').textContent = 'codice errato';
+    }
+  });
+
+  $('drawBtn').addEventListener('click', async () => {
+    try {
+      await api('/api/admin/draw', { method: 'POST', headers: { 'x-admin-secret': adminSecret } });
+      loadState();
+    } catch (err){
+      alert(err.message);
+    }
+  });
+
+  $('resetBtn').addEventListener('click', async () => {
+    if (!confirm('Azzerare tutti i biglietti venduti e l\'eventuale vincitore? Operazione irreversibile.')) return;
+    await api('/api/admin/reset', { method: 'POST', headers: { 'x-admin-secret': adminSecret } });
+    loadState();
+    refreshAdminList();
+  });
+
+  async function refreshAdminList(){
+    if (!adminSecret) return;
+    try {
+      const { purchases } = await api('/api/admin/purchases', { headers: { 'x-admin-secret': adminSecret } });
+      const el = $('adminList');
+      if (!purchases.length){ el.innerHTML = '<div>Nessun acquisto confermato finora.</div>'; return; }
+      el.innerHTML = purchases.slice().reverse()
+        .map((p) => `<div>${p.numbers.map(pad).join(', ')} — ${escapeHtml(p.buyerName)} (${p.amount}€)</div>`)
+        .join('');
+    } catch (e){ /* ignora */ }
+  }
+
+  loadConfig().then(loadState);
+  setInterval(loadState, 5000);
+  setInterval(refreshAdminList, 8000);
+})();
+</script>
+</body>
+</html>
