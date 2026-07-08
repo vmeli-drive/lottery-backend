@@ -1,7 +1,7 @@
 export function packInfo(packType) {
-  const single = { key: 'single', count: 1, price: Number(process.env.PRICE_SINGLE || 5) };
-  const triple = { key: 'triple', count: 3, price: Number(process.env.PRICE_TRIPLE || 12) };
-  return packType === 'triple' ? triple : single;
+  const single = { key: 'single', count: 1, price: Number(process.env.PRICE_SINGLE || 15) };
+  const double = { key: 'double', count: 2, price: Number(process.env.PRICE_DOUBLE || 25) };
+  return packType === 'double' ? double : single;
 }
 
 export function computeSold(data) {
