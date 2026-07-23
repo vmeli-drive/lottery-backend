@@ -171,15 +171,15 @@ h2.section-title{ font-family:'Anton',sans-serif; font-size:24px; letter-spacing
 
   <section>
     <h2 class="section-title">Scegli il tuo pacchetto</h2>
-    <p class="section-sub">Un biglietto o una coppia — a te la scelta.</p>
+    <p class="section-sub">Un biglietto o il tris — a te la scelta.</p>
     <div class="pack-row">
       <button class="pack-card active" id="packSingle">
-        <div class="price" id="priceSingle">15€</div>
+        <div class="price" id="priceSingle">10€</div>
         <div class="desc">1 biglietto</div>
       </button>
-      <button class="pack-card" id="packDouble">
-        <div class="price" id="priceDouble">25€</div>
-        <div class="desc">2 biglietti</div>
+      <button class="pack-card" id="packTriple">
+        <div class="price" id="priceTriple">22€</div>
+        <div class="desc">3 biglietti</div>
         <span class="save">risparmi</span>
       </button>
     </div>
@@ -204,7 +204,7 @@ h2.section-title{ font-family:'Anton',sans-serif; font-size:24px; letter-spacing
     </div>
 
     <div class="total-row">
-      <div><div class="section-sub" style="margin:0;">Totale da pagare</div><div class="total-num" id="totalPrice">5€</div></div>
+      <div><div class="section-sub" style="margin:0;">Totale da pagare</div><div class="total-num" id="totalPrice">10€</div></div>
       <button class="buy-btn" id="reserveBtn">Vai al pagamento</button>
     </div>
 
@@ -281,7 +281,7 @@ h2.section-title{ font-family:'Anton',sans-serif; font-size:24px; letter-spacing
   async function loadConfig(){
     config = await api('/api/config');
     $('priceSingle').textContent = config.prices.single + '€';
-    $('priceDouble').textContent = config.prices.double + '€';
+    $('priceTriple').textContent = config.prices.triple + '€';
     updateTotal();
     loadPaypalSdk();
     buildGrid();
@@ -325,7 +325,7 @@ h2.section-title{ font-family:'Anton',sans-serif; font-size:24px; letter-spacing
       const cell = e.target.closest('.num-cell');
       if (!cell || cell.disabled) return;
       const n = parseInt(cell.dataset.n, 10);
-      const need = currentPack === 'double' ? 2 : 1;
+      const need = currentPack === 'triple' ? 3 : 1;
       const idx = manualSelected.indexOf(n);
       if (idx >= 0){ manualSelected.splice(idx, 1); }
       else {
@@ -346,16 +346,16 @@ h2.section-title{ font-family:'Anton',sans-serif; font-size:24px; letter-spacing
   }
 
   function updateTotal(){
-    const price = currentPack === 'double' ? config.prices.double : config.prices.single;
+    const price = currentPack === 'triple' ? config.prices.triple : config.prices.single;
     $('totalPrice').textContent = price + '€';
   }
 
   $('packSingle').addEventListener('click', () => selectPack('single'));
-  $('packDouble').addEventListener('click', () => selectPack('double'));
+  $('packTriple').addEventListener('click', () => selectPack('triple'));
   function selectPack(pack){
     currentPack = pack;
     $('packSingle').classList.toggle('active', pack === 'single');
-    $('packDouble').classList.toggle('active', pack === 'double');
+    $('packTriple').classList.toggle('active', pack === 'triple');
     manualSelected = [];
     renderGridState();
     updateTotal();
@@ -383,7 +383,7 @@ h2.section-title{ font-family:'Anton',sans-serif; font-size:24px; letter-spacing
     hideMsg();
     const buyerName = $('buyerName').value.trim();
     const buyerContact = $('buyerContact').value.trim();
-    const need = currentPack === 'double' ? 2 : 1;
+    const need = currentPack === 'triple' ? 3 : 1;
 
     if (!buyerName || !buyerContact){
       showMsg('Inserisci nome ed email prima di procedere.', 'error');
