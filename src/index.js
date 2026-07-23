@@ -39,7 +39,7 @@ app.get('/api/config', (req, res) => {
     paypalClientId: process.env.PAYPAL_CLIENT_ID,
     eventName: EVENT_NAME,
     totalTickets: TOTAL_TICKETS,
-    prices: { single: packInfo('single').price, double: packInfo('double').price }
+    prices: { single: packInfo('single').price, triple: packInfo('triple').price }
   });
 });
 
