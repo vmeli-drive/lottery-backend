@@ -19,7 +19,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-const TOTAL_TICKETS = Number(process.env.TOTAL_TICKETS || 500);
+const TOTAL_TICKETS = Number(process.env.TOTAL_TICKETS || 1000);
 const EVENT_NAME = process.env.EVENT_NAME || 'Lotteria Privata';
 
 function requireAdmin(req, res, next) {
