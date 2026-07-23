@@ -1,9 +1,8 @@
 export function packInfo(packType) {
   const single = { key: 'single', count: 1, price: Number(process.env.PRICE_SINGLE || 10) };
-  const double = { key: 'double', count: 3, price: Number(process.env.PRICE_TRIPLE || 22) };
-  return packType === 'double' ? double : single;
+  const triple = { key: 'triple', count: 3, price: Number(process.env.PRICE_TRIPLE || 22) };
+  return packType === 'triple' ? triple : single;
 }
-
 export function computeSold(data) {
   const sold = new Set();
   for (const r of Object.values(data.reservations)) {
@@ -11,7 +10,6 @@ export function computeSold(data) {
   }
   return sold;
 }
-
 // Numeri "congelati" da prenotazioni in corso di pagamento, non ancora confermate.
 export function computePending(data) {
   const now = Date.now();
@@ -23,7 +21,6 @@ export function computePending(data) {
   }
   return pending;
 }
-
 // Le prenotazioni non pagate entro il termine liberano il numero per altri acquirenti.
 export function expireStale(data) {
   const now = Date.now();
