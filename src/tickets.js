@@ -1,6 +1,6 @@
 export function packInfo(packType) {
-  const single = { key: 'single', count: 1, price: Number(process.env.PRICE_SINGLE || 15) };
-  const double = { key: 'double', count: 2, price: Number(process.env.PRICE_DOUBLE || 25) };
+  const single = { key: 'single', count: 1, price: Number(process.env.PRICE_SINGLE || 10) };
+  const double = { key: 'double', count: 2, price: Number(process.env.PRICE_TRIPLE || 22) };
   return packType === 'double' ? double : single;
 }
 
